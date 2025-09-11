@@ -1,2 +1,2 @@
 # SoftwareEngineeringProject
-CEN 3101 - Intro to Software Engineering Group Project
+CEN 3031 - Intro to Software Engineering Group Project
