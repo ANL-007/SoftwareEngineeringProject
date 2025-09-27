@@ -1,4 +1,4 @@
-Quick Team Setup Instructions (Windows)
+#Quick Team Setup Instructions (Windows)
 1. Clone the GitHub Repository
 Open Command Prompt (or PowerShell).
 
