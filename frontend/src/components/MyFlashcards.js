@@ -1,3 +1,13 @@
+import React from 'react';
+
+function MyFlashcards() {
+  return <p>Flashcards</p>;
+}
+
+export default MyFlashcards;
+
+
+/*
 import React, { useEffect, useState } from 'react';
 import { getFlashcards } from './api';
 
@@ -26,3 +36,4 @@ function Flashcards() {
 }
 
 export default Flashcards;
+*/
