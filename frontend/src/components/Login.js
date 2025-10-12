@@ -1,3 +1,9 @@
+/*
+Manage input and UI state.
+Handle both login and registration in one component.
+Communicate with Django’s backend via Axios.
+Pass the logged-in username to the parent (onLogin) for session management.
+*/
 import React, { useState } from 'react';
 import '../styles/Login.css';
 import axios from 'axios';
