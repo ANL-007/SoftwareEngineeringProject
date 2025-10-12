@@ -1,3 +1,7 @@
+/*
+Styles(bacground colors, fonts, ect.) for Login and Registration forms.
+*/
+
 .login-container {
   display: flex;
   justify-content: center;
