@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getFlashcards } from '../api/api';
+import { getFlashcards, createFlashcard } from '../api/api';
 
 function MyFlashcards() {
   const [flashcards, setFlashcards] = useState([]);
@@ -66,15 +66,17 @@ function MyFlashcards() {
       }
 
       const username = localStorage.getItem('user');
-      console.log(`User ${username} creating flashcard:`, formData);
-      // TODO: Call API to create flashcard
-      // const response = await createFlashcard(username, formData.question, formData.answer);
+      
+      // Call API to create flashcard
+      const response = await createFlashcard(username, formData.question, formData.answer);
+      console.log('Flashcard created successfully:', response);
 
       // Refresh flashcards after successful creation
       await fetchUserFlashcards();
       closeModal();
     } catch (err) {
-      setFormError('Failed to create flashcard. Please try again.');
+      const errorMessage = err.response?.data?.error || err + 'Failed to create flashcard. Please try again.';
+      setFormError(errorMessage);
       console.error('Error:', err);
     }
   };

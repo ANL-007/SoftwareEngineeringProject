@@ -1,11 +1,12 @@
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User  # <-- add this line
+from django.contrib.auth.models import User
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from .models import Flashcard, Class, ClassMember
+
 
 @api_view(['POST'])
 def login_user(request):
@@ -45,10 +46,91 @@ def register(request):
     try:
         validate_password(password)  # this raises django.core.exceptions.ValidationError if invalid
     except ValidationError as ve:
-        # ve is an exception containing a list of error messages
-        # Send them back to the client in a friendly format
         return Response({'error': ' '.join(ve.messages)}, status=status.HTTP_400_BAD_REQUEST)
 
-    # If validators pass, create the user (password is hashed by create_user)
+    # Create the user
     user = User.objects.create_user(username=username, email=email, password=password)
     return Response({'success': True, 'username': user.username}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+def get_flashcards(request):
+    """Fetch all flashcards (for public view or user's flashcards)"""
+    try:
+        flashcards = Flashcard.objects.all().values('id', 'front_text', 'back_text')
+        return Response(list(flashcards), status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+def create_flashcard(request):
+    """Create a new flashcard for the authenticated user"""
+    try:
+        username = request.data.get('username')
+        question = request.data.get('question', '').strip()
+        answer = request.data.get('answer', '').strip()
+
+        if not username:
+            return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not question or not answer:
+            return Response({'error': 'Question and answer are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        default_class, _ = Class.objects.get_or_create(
+            class_name=f"{username}'s Flashcards",
+            defaults={'class_number': f'DEFAULT-{username}', 'description': 'Default flashcard collection'}
+        )
+
+        flashcard = Flashcard.objects.create(
+            class_obj=default_class,
+            creator=user,
+            front_text=question,
+            back_text=answer
+        )
+
+        return Response({
+            'success': True,
+            'id': flashcard.id,
+            'question': flashcard.front_text,
+            'answer': flashcard.back_text
+        }, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def get_user_classes(request):
+    """Fetch classes the user is enrolled in"""
+    try:
+        username = request.query_params.get('username')
+
+        if not username:
+            return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        class_memberships = ClassMember.objects.filter(user=user).select_related('class_obj')
+        classes_data = []
+        for membership in class_memberships:
+            classes_data.append({
+                'id': membership.class_obj.id,
+                'class_name': membership.class_obj.class_name,
+                'class_number': membership.class_obj.class_number,
+                'description': membership.class_obj.description,
+                'role_in_class': membership.role_in_class
+            })
+
+        return Response(classes_data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -23,3 +23,17 @@ export const getUserClasses = async (username) => {
     return [];
   }
 };
+
+export const createFlashcard = async (username, question, answer) => {
+  try {
+    const response = await axios.post(`${API_URL}/create-flashcard/`, {
+      username,
+      question,
+      answer,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating flashcard:', error);
+    throw error;
+  }
+};
