@@ -11,3 +11,15 @@ export const getFlashcards = async () => {
     return [];
   }
 };
+
+export const getUserClasses = async (username) => {
+  try {
+    const response = await axios.get(`${API_URL}/user-classes/`, {
+      params: { username },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user classes:', error);
+    return [];
+  }
+};
