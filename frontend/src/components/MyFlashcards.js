@@ -135,18 +135,18 @@ function MyFlashcards() {
             Click any card to flip it and reveal the answer
           </p>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1.25rem' }}>
             {flashcards.map((flashcard, index) => {
               const isFlipped = flipped[flashcard.id || index];
-              
+
               return (
                 <div
                   key={flashcard.id || index}
                   onClick={() => toggleFlip(flashcard.id || index)}
                   style={{
-                    perspective: '1000px',
+                    perspective: '900px',
                     cursor: 'pointer',
-                    height: '250px',
+                    height: '200px',
                   }}
                 >
                   <div
@@ -162,29 +162,29 @@ function MyFlashcards() {
                     {/* Front side - Question */}
                     <div
                       style={{
-                        position: 'absolute',
-                        width: '100%',
-                        height: '100%',
-                        backfaceVisibility: 'hidden',
-                        backgroundColor: '#007bff',
-                        border: '2px solid #0056b3',
-                        padding: '1.5rem',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 12px rgba(0, 123, 255, 0.2)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        textAlign: 'center',
-                      }}
+                          position: 'absolute',
+                          width: '100%',
+                          height: '100%',
+                          backfaceVisibility: 'hidden',
+                          backgroundColor: '#007bff',
+                          border: '2px solid #0056b3',
+                          padding: '1rem',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0, 123, 255, 0.15)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          textAlign: 'center',
+                        }}
                     >
-                      <p style={{ color: '#fff', fontSize: '0.9rem', margin: '0 0 1rem 0', opacity: 0.8 }}>
+                      <p style={{ color: '#fff', fontSize: '0.8rem', margin: '0 0 0.75rem 0', opacity: 0.8 }}>
                         QUESTION
                       </p>
-                      <p style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '600', margin: 0, lineHeight: '1.5' }}>
+                      <p style={{ color: '#fff', fontSize: '1rem', fontWeight: '600', margin: 0, lineHeight: '1.4' }}>
                         {flashcard.Question || flashcard.front_text}
                       </p>
-                      <p style={{ color: '#fff', fontSize: '0.85rem', margin: '1rem 0 0 0', opacity: 0.7 }}>
+                      <p style={{ color: '#fff', fontSize: '0.8rem', margin: '0.75rem 0 0 0', opacity: 0.7 }}>
                         Click to reveal answer
                       </p>
                     </div>
@@ -192,30 +192,30 @@ function MyFlashcards() {
                     {/* Back side - Answer */}
                     <div
                       style={{
-                        position: 'absolute',
-                        width: '100%',
-                        height: '100%',
-                        backfaceVisibility: 'hidden',
-                        backgroundColor: '#28a745',
-                        border: '2px solid #1e7e34',
-                        padding: '1.5rem',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 12px rgba(40, 167, 69, 0.2)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        textAlign: 'center',
-                        transform: 'rotateY(180deg)',
-                      }}
+                          position: 'absolute',
+                          width: '100%',
+                          height: '100%',
+                          backfaceVisibility: 'hidden',
+                          backgroundColor: '#28a745',
+                          border: '2px solid #1e7e34',
+                          padding: '1rem',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(40, 167, 69, 0.15)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          textAlign: 'center',
+                          transform: 'rotateY(180deg)',
+                        }}
                     >
-                      <p style={{ color: '#fff', fontSize: '0.9rem', margin: '0 0 1rem 0', opacity: 0.8 }}>
+                      <p style={{ color: '#fff', fontSize: '0.8rem', margin: '0 0 0.75rem 0', opacity: 0.8 }}>
                         ANSWER
                       </p>
-                      <p style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '600', margin: 0, lineHeight: '1.5' }}>
+                      <p style={{ color: '#fff', fontSize: '1rem', fontWeight: '600', margin: 0, lineHeight: '1.4' }}>
                         {flashcard.Answer || flashcard.back_text}
                       </p>
-                      <p style={{ color: '#fff', fontSize: '0.85rem', margin: '1rem 0 0 0', opacity: 0.7 }}>
+                      <p style={{ color: '#fff', fontSize: '0.8rem', margin: '0.75rem 0 0 0', opacity: 0.7 }}>
                         Click to see question
                       </p>
                     </div>

@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\backend",
+    "\\backend\\flashcards",
+    "\\backend\\flashcards\\migrations",
+    "\\backend\\studyhub",
+    "\\frontend",
+    "\\frontend\\public",
+    "\\frontend\\src",
+    "\\frontend\\src\\api",
+    "\\frontend\\src\\components"
+  ],
+  "SelectedNode": "\\backend\\flashcards\\models.py",
+  "PreviewInSolutionExplorer": false
+}

@@ -134,3 +134,73 @@ def get_user_classes(request):
 
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def list_classes(request):
+    """Return all classes from the Class table"""
+    try:
+        classes = Class.objects.all().values('id', 'class_name', 'class_number', 'description')
+        return Response(list(classes), status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+def join_class(request):
+    """Enroll a user into a class via class_id"""
+    try:
+        username = request.data.get('username')
+        class_id = request.data.get('class_id')
+
+        if not username or not class_id:
+            return Response({'error': 'username and class_id required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            class_obj = Class.objects.get(id=class_id)
+        except Class.DoesNotExist:
+            return Response({'error': 'Class not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        ClassMember.objects.get_or_create(user=user, class_obj=class_obj, defaults={'role_in_class': 'Student'})
+        return Response({'success': True}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+def create_class(request):
+    """Create a Class and optionally add the creator as ClassMember (Leader)"""
+    try:
+        class_name = request.data.get('class_name', '').strip()
+        class_number = request.data.get('class_number', '').strip()
+        description = request.data.get('description', '').strip()
+        username = request.data.get('username')
+        role = request.data.get('role', 'Leader')
+
+        if not class_name or not class_number:
+            return Response({'error': 'class_name and class_number are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        new_class = Class.objects.create(class_name=class_name, class_number=class_number, description=description)
+
+        # If a username was provided, try to add with the specified role (validate role)
+        if username:
+            try:
+                user = User.objects.get(username=username)
+                # validate role against model choices
+                allowed_roles = [r[0] for r in ClassMember.ROLE_CHOICES]
+                role_to_use = role if role in allowed_roles else 'Leader'
+                ClassMember.objects.create(user=user, class_obj=new_class, role_in_class=role_to_use)
+            except User.DoesNotExist:
+                # ignore if user not found; class still created
+                pass
+
+        return Response({'success': True, 'id': new_class.id, 'class_name': new_class.class_name}, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -24,6 +24,45 @@ export const getUserClasses = async (username) => {
   }
 };
 
+export const getAllClasses = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/classes/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching all classes:', error);
+    return [];
+  }
+};
+
+export const joinClass = async (username, classId) => {
+  try {
+    const response = await axios.post(`${API_URL}/join-class/`, {
+      username,
+      class_id: classId,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error joining class:', error);
+    throw error;
+  }
+};
+
+export const createClass = async (username, className, classNumber, description, role = 'Leader') => {
+  try {
+    const response = await axios.post(`${API_URL}/create-class/`, {
+      username,
+      class_name: className,
+      class_number: classNumber,
+      description,
+      role,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating class:', error);
+    throw error;
+  }
+};
+
 export const createFlashcard = async (username, question, answer) => {
   try {
     const response = await axios.post(`${API_URL}/create-flashcard/`, {

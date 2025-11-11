@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getUserClasses } from '../api/api';
+import { getUserClasses, getAllClasses, joinClass, createClass } from '../api/api';
 
 function Groups() {
   const [classes, setClasses] = useState([]);
@@ -12,11 +12,15 @@ function Groups() {
     className: '',
     classNumber: '',
     description: '',
+    role: 'Leader',
   });
+  const [availableClasses, setAvailableClasses] = useState([]);
+  const [selectedClassId, setSelectedClassId] = useState(null);
   const [formError, setFormError] = useState('');
 
   useEffect(() => {
     fetchUserClasses();
+    fetchAvailableClasses();
   }, []);
 
   const fetchUserClasses = async () => {
@@ -41,6 +45,16 @@ function Groups() {
     }
   };
 
+  const fetchAvailableClasses = async () => {
+    try {
+      const classes = await getAllClasses();
+      setAvailableClasses(classes || []);
+    } catch (err) {
+      console.error('Error fetching available classes:', err);
+      setAvailableClasses([]);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -48,6 +62,8 @@ function Groups() {
       [name]: value
     }));
     setFormError('');
+    // If user starts typing manual code, clear any selected class
+    if (name === 'classCode' && value.trim() !== '') setSelectedClassId(null);
   };
 
   const handleSubmit = async (e) => {
@@ -58,25 +74,40 @@ function Groups() {
       const username = localStorage.getItem('user');
       
       if (formMode === 'join') {
-        if (!formData.classCode.trim()) {
-          setFormError('Please enter a class code');
+        // If a class was selected from dropdown prefer that
+        if (selectedClassId) {
+          console.log(`User ${username} joining class id: ${selectedClassId}`);
+          await joinClass(username, selectedClassId);
+        } else {
+          if (!formData.classCode.trim()) {
+            setFormError('Please enter a class code or select a class from the list');
+            return;
+          }
+          // Fallback: join by code if backend supports it (existing behavior)
+          console.log(`User ${username} joining class with code: ${formData.classCode}`);
+          // TODO: Call API to join class by code if available
+          // e.g. await joinClassByCode(username, formData.classCode);
+          setFormError('Joining by code is not implemented on the client; please select a class from the dropdown');
           return;
         }
-        console.log(`User ${username} joining class with code: ${formData.classCode}`);
-        // TODO: Call API to join class
       } else {
         if (!formData.className.trim() || !formData.classNumber.trim()) {
           setFormError('Please fill in class name and class number');
           return;
         }
         console.log(`User ${username} creating class: ${formData.className} (${formData.classNumber})`);
-        // TODO: Call API to create class
+        // Call API to create class and add creator with selected role
+        const result = await createClass(username, formData.className, formData.classNumber, formData.description, formData.role);
+        console.log('Created class:', result);
       }
 
       // Refresh classes after successful operation
       await fetchUserClasses();
+      // Also refresh available classes and reset selected
+      await fetchAvailableClasses();
       setShowModal(false);
       setFormData({ classCode: '', className: '', classNumber: '', description: '' });
+      setSelectedClassId(null);
     } catch (err) {
       setFormError('Failed to process request. Please try again.');
       console.error('Error:', err);
@@ -209,13 +240,15 @@ function Groups() {
               {formMode === 'join' ? (
                 <>
                   <label style={{ display: 'block', marginBottom: '1rem' }}>
-                    <strong>Class Code:</strong>
-                    <input
-                      type="text"
-                      name="classCode"
-                      value={formData.classCode}
-                      onChange={handleInputChange}
-                      placeholder="Enter the class code provided by your instructor"
+                    <strong>Pick a class to join:</strong>
+                    <select
+                      value={selectedClassId || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedClassId(val || null);
+                        // clear manual code if user picks from list
+                        if (val) setFormData(prev => ({ ...prev, classCode: '' }));
+                      }}
                       style={{
                         width: '100%',
                         padding: '0.75rem',
@@ -225,8 +258,35 @@ function Groups() {
                         fontSize: '1rem',
                         boxSizing: 'border-box',
                       }}
-                    />
+                    >
+                      <option value="">-- Select a class (or enter a code below) --</option>
+                      {availableClasses.map(c => (
+                        <option key={c.id} value={c.id}>{c.class_name} ({c.class_number})</option>
+                      ))}
+                    </select>
                   </label>
+
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <label style={{ display: 'block' }}>
+                      <strong>Or enter Class Code:</strong>
+                      <input
+                        type="text"
+                        name="classCode"
+                        value={formData.classCode}
+                        onChange={handleInputChange}
+                        placeholder="Enter the class code provided by your instructor"
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          marginTop: '0.5rem',
+                          border: '1px solid #ddd',
+                          borderRadius: '4px',
+                          fontSize: '1rem',
+                          boxSizing: 'border-box',
+                        }}
+                      />
+                    </label>
+                  </div>
                 </>
               ) : (
                 <>
@@ -249,6 +309,28 @@ function Groups() {
                       }}
                     />
                   </label>
+
+                <label style={{ display: 'block', marginBottom: '1rem' }}>
+                  <strong>Role:</strong>
+                  <select
+                    name="role"
+                    value={formData.role}
+                    onChange={handleInputChange}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      marginTop: '0.5rem',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      fontSize: '1rem',
+                      boxSizing: 'border-box',
+                    }}
+                  >
+                    <option value="Leader">Leader</option>
+                    <option value="Student">Student</option>
+                    <option value="TA">Teaching Assistant</option>
+                  </select>
+                </label>
 
                   <label style={{ display: 'block', marginBottom: '1rem' }}>
                     <strong>Class Number:</strong>
