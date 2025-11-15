@@ -28,7 +28,7 @@ function MyFlashcards() {
         return;
       }
 
-      const data = await getFlashcards();
+      const data = await getFlashcards(username);
       setFlashcards(data || []);
       setError(null);
     } catch (err) {

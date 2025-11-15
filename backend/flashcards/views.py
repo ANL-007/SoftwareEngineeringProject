@@ -55,9 +55,19 @@ def register(request):
 
 @api_view(['GET'])
 def get_flashcards(request):
-    """Fetch all flashcards (for public view or user's flashcards)"""
+    """Fetch flashcards created by a specific user"""
     try:
-        flashcards = Flashcard.objects.all().values('id', 'front_text', 'back_text')
+        username = request.query_params.get('username')
+        
+        if not username:
+            return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        flashcards = Flashcard.objects.filter(creator=user).values('id', 'front_text', 'back_text')
         return Response(list(flashcards), status=status.HTTP_200_OK)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
