@@ -16,37 +16,50 @@ class Quiz(models.Model):
         ClassID = models.IntegerField
         DueDate = models.DateTimeField(auto_now_add=True)
 
-  
+
         def __str__(self):
             return self.id
 
+class FlashcardSet(models.Model):
+    class_obj = models.ForeignKey('Class', on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.class_obj.class_name})"
+
+
 class Flashcard(models.Model):
+    flashcard_set = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE)
     class_obj = models.ForeignKey('Class', on_delete=models.CASCADE)
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
     front_text = models.TextField()
     back_text = models.TextField()
 
     def __str__(self):
-        return f"Flashcard {self.id} in {self.class_obj.class_name}"
+        return f"Flashcard {self.id} in set {self.flashcard_set.name}"
 
-class FlashcardLeaderboard(models.Model):
-    flashcard = models.ForeignKey(Flashcard, on_delete=models.CASCADE)
+class FlashcardSetLeaderboard(models.Model):
+    flashcard_set = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     score = models.IntegerField(default=0)
     last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ("flashcard", "user")
+        unique_together = ("flashcard_set", "user")
 
-
-class FlashcardStudyTime(models.Model):
-    flashcard = models.ForeignKey(Flashcard, on_delete=models.CASCADE)
+class FlashcardSetStudyTime(models.Model):
+    flashcard_set = models.ForeignKey(FlashcardSet, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    time_spent = models.IntegerField(default=0)  # seconds
+    time_spent = models.IntegerField(default=0)
     last_studied = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ("flashcard", "user")
+        unique_together = ("flashcard_set", "user")
 
 class Class(models.Model):
     class_name = models.CharField(max_length=100)
@@ -55,7 +68,6 @@ class Class(models.Model):
 
     def __str__(self):
         return f"{self.class_name} ({self.class_number})"
-
 
 class ClassMember(models.Model):
     ROLE_CHOICES = (
