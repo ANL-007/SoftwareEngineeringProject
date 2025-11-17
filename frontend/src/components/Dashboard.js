@@ -3,7 +3,7 @@ import Sidebar from './Sidebar';
 import Home from './Home';
 import PublicFlashcards from './PublicFlashcards';
 import MyFlashcards from './MyFlashcards';
-import Groups from './Groups';
+import Classes from './Classes';
 import '../styles/Dashboard.css';
 
 function Dashboard({ onLogout }) {
@@ -17,8 +17,8 @@ function Dashboard({ onLogout }) {
         return <PublicFlashcards />;
       case 'My Flashcards':
         return <MyFlashcards />;
-      case 'Groups':
-        return <Groups />;
+      case 'Classes':
+        return <Classes />;
       default:
         return <Home />;
     }

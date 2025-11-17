@@ -2,7 +2,7 @@ import React from 'react';
 import '../styles/Sidebar.css';
 
 function Sidebar({ activeTab, setActiveTab }) {
-  const tabs = ['Home', 'Public Flashcards', 'My Flashcards', 'Groups'];
+  const tabs = ['Home', 'Public Flashcards', 'My Flashcards', 'Classes'];
 
   return (
     <div className="sidebar">
