@@ -12,7 +12,7 @@ function Dashboard({ onLogout }) {
   const renderContent = () => {
     switch (activeTab) {
       case 'Home':
-        return <Home />;
+        return <Home setActiveTab={setActiveTab} />;
       case 'Public Flashcards':
         return <PublicFlashcards />;
       case 'My Flashcards':
@@ -20,7 +20,7 @@ function Dashboard({ onLogout }) {
       case 'Classes':
         return <Classes />;
       default:
-        return <Home />;
+        return <Home setActiveTab={setActiveTab} />;
     }
   };
 
@@ -30,7 +30,10 @@ function Dashboard({ onLogout }) {
       <div className="dashboard-content">
         <div className="dashboard-header">
           <h1>{activeTab}</h1>
-          <button onClick={onLogout}>Logout</button>
+          <button className="logout-btn" onClick={onLogout} aria-label="Logout">
+            <span className="logout-emoji" aria-hidden>🔒</span>
+            <span className="logout-text">Logout</span>
+          </button>
         </div>
         <div className="dashboard-main">{renderContent()}</div>
       </div>

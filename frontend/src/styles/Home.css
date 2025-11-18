@@ -1,0 +1,151 @@
+.home-root {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  color: #1f2937;
+}
+
+.home-hero {
+  background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+  color: white;
+  padding: 48px 24px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.hero-content {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.hero-content h1 {
+  margin: 0 0 6px 0;
+  font-size: 2rem;
+}
+
+.hero-sub {
+  margin: 0 0 18px 0;
+  opacity: 0.95;
+}
+
+.hero-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  min-width: 260px;
+}
+
+.cta-btn {
+  background: rgba(255,255,255,0.15);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.home-main {
+  max-width: 1100px;
+  margin: 18px auto;
+  padding: 0 12px;
+}
+
+.quick-links {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.quick-card {
+  flex: 1 1 0;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 14px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.quick-card h3 {
+  margin: 0 0 6px 0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 8px 0 12px 0;
+}
+
+.see-all {
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 1px 4px rgba(16,24,40,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tag {
+  background: #eef2ff;
+  color: #4338ca;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
+.card-meta {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.card-actions {
+  margin-top: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.link-button {
+  background: #4f46e5;
+  color: white;
+  padding: 8px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.ghost {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+@media (max-width: 700px) {
+  .quick-links { flex-direction: column; }
+  .hero-content h1 { font-size: 1.5rem; }
+}

@@ -19,6 +19,33 @@
   border-bottom: 1px solid #ddd;
 }
 
+/* Logout button styles */
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(90deg, #4f46e5, #06b6d4);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(79,70,229,0.12);
+  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+}
+
+.logout-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(79,70,229,0.16); }
+.logout-btn:active { transform: translateY(0); }
+
+.logout-emoji { font-size: 18px; line-height: 1; }
+.logout-text { display: inline-block; }
+
+@media (max-width: 520px) {
+  .logout-text { display: none; }
+  .logout-btn { padding: 8px; border-radius: 999px; }
+}
+
 .dashboard-main {
   flex: 1;
   padding: 30px;
