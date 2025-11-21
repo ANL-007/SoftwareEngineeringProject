@@ -14,6 +14,48 @@ export const getFlashcards = async (username) => {
   }
 };
 
+export const getFlashcardSets = async (username) => {
+  const response = await axios.get(`${API_URL}/flashcard-sets/`, { params: { username } });
+  return response.data;
+};
+
+export const getFlashcardsInSet = async (setId) => {
+  const response = await axios.get(`${API_URL}/flashcards/set/`, { params: { set_id: setId } });
+  return response.data;
+};
+
+export const createFlashcard = async (set_id, username, question, answer) => {
+  try {
+    const response = await axios.post(`${API_URL}/create-flashcard/`, {
+      set_id,
+      username,
+      question,
+      answer,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating flashcard:', error);
+    throw error;
+  }
+};
+
+export const createFlashcardSet = async (username, name, description = '', class_id = null) => {
+  try {
+    const response = await axios.post(`${API_URL}/create-flashcard-set/`, {
+      username,
+      name,
+      description,
+      class_id,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating flashcard set:', error);
+    throw error;
+  }
+};
+
+
+
 export const getUserClasses = async (username) => {
   try {
     const response = await axios.get(`${API_URL}/user-classes/`, {
@@ -65,16 +107,4 @@ export const createClass = async (username, className, classNumber, description,
   }
 };
 
-export const createFlashcard = async (username, question, answer) => {
-  try {
-    const response = await axios.post(`${API_URL}/create-flashcard/`, {
-      username,
-      question,
-      answer,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error creating flashcard:', error);
-    throw error;
-  }
-};
+

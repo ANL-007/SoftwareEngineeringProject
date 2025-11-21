@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from .models import Flashcard, Class, ClassMember
+from .models import Flashcard, Class, ClassMember, FlashcardSet
 
 
 @api_view(['POST'])
@@ -53,6 +53,82 @@ def register(request):
     return Response({'success': True, 'username': user.username}, status=status.HTTP_201_CREATED)
 
 
+
+
+@api_view(['GET'])
+def get_flashcard_sets(request):
+    """Fetch flashcard sets for a given user (username via query param)"""
+    try:
+        username = request.query_params.get('username')
+        if not username:
+            return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        sets = FlashcardSet.objects.filter(creator=user).values('id', 'name', 'description', 'class_obj_id', 'created_at')
+        return Response(list(sets), status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+def get_flashcards_in_set(request):
+    """Fetch flashcards in a specific flashcard set (set_id via query param)"""
+    try:
+        set_id = request.query_params.get('set_id')
+        if not set_id:
+            return Response({'error': 'set_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            flashcard_set = FlashcardSet.objects.get(id=set_id)
+        except FlashcardSet.DoesNotExist:
+            return Response({'error': 'Flashcard set not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        flashcards = Flashcard.objects.filter(flashcard_set=flashcard_set).values('id', 'front_text', 'back_text', 'creator_id')
+        return Response(list(flashcards), status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+def create_flashcard_set(request):
+    """Create a new FlashcardSet. Expects: username, name, description (optional), class_id (optional)"""
+    try:
+        username = request.data.get('username')
+        name = request.data.get('name', '').strip()
+        description = request.data.get('description', '').strip()
+        class_id = request.data.get('class_id')
+
+        if not username or not name:
+            return Response({'error': 'username and name are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        class_obj = None
+        if class_id:
+            try:
+                class_obj = Class.objects.get(id=class_id)
+            except Class.DoesNotExist:
+                return Response({'error': 'Class not found'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            class_obj, _ = Class.objects.get_or_create(
+                class_name=f"{username}'s Flashcards",
+                defaults={'class_number': f'DEFAULT-{username}', 'description': 'Default flashcard collection'}
+            )
+
+        new_set = FlashcardSet.objects.create(class_obj=class_obj, name=name, description=description, creator=user)
+        return Response({'success': True, 'id': new_set.id, 'name': new_set.name}, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(['GET'])
 def get_flashcards(request):
     """Fetch flashcards created by a specific user"""
@@ -80,6 +156,7 @@ def create_flashcard(request):
         username = request.data.get('username')
         question = request.data.get('question', '').strip()
         answer = request.data.get('answer', '').strip()
+        set_id = request.data.get('set_id')
 
         if not username:
             return Response({'error': 'Username is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -92,14 +169,29 @@ def create_flashcard(request):
         except User.DoesNotExist:
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        default_class, _ = Class.objects.get_or_create(
-            class_name=f"{username}'s Flashcards",
-            defaults={'class_number': f'DEFAULT-{username}', 'description': 'Default flashcard collection'}
-        )
+        flashcard_set = None
+        if set_id:
+            try:
+                flashcard_set = FlashcardSet.objects.get(id=set_id)
+            except FlashcardSet.DoesNotExist:
+                return Response({'error': 'Flashcard set not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # If no set provided, ensure a default class and default set exist for the user
+        if not flashcard_set:
+            default_class, _ = Class.objects.get_or_create(
+                class_name=f"{username}'s Flashcards",
+                defaults={'class_number': f'DEFAULT-{username}', 'description': 'Default flashcard collection'}
+            )
+            flashcard_set, _ = FlashcardSet.objects.get_or_create(
+                class_obj=default_class,
+                name=f"{username}'s Default Set",
+                defaults={'description': 'Auto-created default set', 'creator': user}
+            )
 
         flashcard = Flashcard.objects.create(
-            class_obj=default_class,
+            class_obj=flashcard_set.class_obj,
             creator=user,
+            flashcard_set=flashcard_set,
             front_text=question,
             back_text=answer
         )
